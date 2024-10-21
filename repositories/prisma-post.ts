@@ -1,27 +1,29 @@
 import { PrismaClientConfig } from "../connectors/prisma-db";
 import { Post } from "../../domain/entities/post"
-import { PostRepository } from "../../application/repositories/post";
+import { PostData, PostRepository, PostUpdateData } from "../../application/repositories/post";
 
 export class PrismaPostRepository extends PrismaClientConfig implements PostRepository {
 
-    async create(postData: {title:string, content:string}, userId: number): Promise<Post> {
+    async create({title, content, authorName}: PostData, userId: number): Promise<Post> {
         return await this.prisma.post.create({
             data: {
-                title: postData.title,
-                content: postData.content,
+                title: title,
+                content: content,
                 author: {
                     connect: { id: userId } 
-                }
+                },
+                authorName: authorName
             }
         });
     }
 
     async readAll(): Promise<Post[]> {
-        return await this.prisma.post.findMany();
+        return await this.prisma.post.findMany({include: {likes: true}});
     }
-    async readById(id: number): Promise<Post | null> {
+    async readById(id: number): Promise<Post|null> {
         return await this.prisma.post.findUnique({
             where: { id },
+            include: {likes: true}
         });
     }
 
@@ -31,7 +33,7 @@ export class PrismaPostRepository extends PrismaClientConfig implements PostRepo
         });
     }
 
-    async update(id: number, post: Partial<Post>): Promise<Post> {
+    async update(id: number, post: PostUpdateData): Promise<Post> {
         return await this.prisma.post.update({
             where: { id },
             data: post,

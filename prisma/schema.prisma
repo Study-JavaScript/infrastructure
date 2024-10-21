@@ -23,13 +23,15 @@ model User {
 }
 
 model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  deleted   Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  Int
-  likes     LikePost[]
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String?
+  deleted     Boolean  @default(false)
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    Int
+  authorName  String
+  date        DateTime @default(now())
+  likes       LikePost[]
 }
 
 model LikePost {
